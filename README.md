@@ -1,4 +1,4 @@
-# qme-xmlc — XML Structural Diff
+# qm-exmlc — XML Structural Diff
 
 A browser-based XML comparison tool that diffs XML *structurally* instead of
 as text. The specific problem it solves: when a group of sibling elements

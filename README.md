@@ -48,7 +48,10 @@ client-side.
    change** controls: next/previous buttons with a position counter for
    each of Additions, Deletions, Modified, and Moves, for navigating a
    large diff without manual scrolling. A multi-line added or removed
-   subtree counts as one jump target, not one per line.
+   subtree counts as one jump target, not one per line. When **Highlight
+   ignored attrs** is on, nodes whose only difference is in an ignored
+   attribute join the Modified count too, so you can browse to those as
+   well; they drop back out the moment you turn highlighting off.
 
 Colors: green = added, red = removed, yellow = modified (only the specific
 line that actually changed — a container element isn't painted just

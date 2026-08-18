@@ -147,6 +147,7 @@
       isTopLevelAdded: isAdded && ancestorStatus !== 'added',
       isTopLevelRemoved: isRemoved && ancestorStatus !== 'removed',
       isModified: !isAdded && !isRemoved && !!node.ownChanged,
+      isIgnoredOnlyModified: !isAdded && !isRemoved && !!node.ignoredOnlyChanged,
       isMoved: !isAdded && !isRemoved && !!node.moved,
       childAncestorStatus: isAdded ? 'added' : (isRemoved ? 'removed' : ancestorStatus),
     };

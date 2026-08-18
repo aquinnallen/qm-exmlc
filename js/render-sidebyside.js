@@ -21,6 +21,7 @@
   function markNewSide(line, flags) {
     if (flags.isTopLevelAdded) line.classList.add('nav-target-added');
     if (flags.isModified) line.classList.add('nav-target-modified');
+    if (flags.isIgnoredOnlyModified) line.classList.add('nav-target-modified-ignored');
     if (flags.isMoved) line.classList.add('nav-target-moved');
   }
 

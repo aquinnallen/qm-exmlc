@@ -327,10 +327,16 @@
       var attrs = diffAttrs(oldNode.attrs, newNode.attrs);
       var children = diffChildren(oldNode, newNode);
       var ownChanged = attrs.some(function (a) { return !a.ignored && a.status !== 'unchanged'; });
+      // True when the ONLY attribute difference(s) on this node are on
+      // ignored attributes -- lets the results page opt these into the
+      // "Modified" nav category on demand (only when their highlighting is
+      // turned on), without it ever affecting ownChanged/status/counts,
+      // which stay fixed at diff time regardless of that live toggle.
+      var ignoredOnlyChanged = !ownChanged && attrs.some(function (a) { return a.ignored && a.status !== 'unchanged'; });
       var childrenChanged = children.some(function (c) { return c.status !== 'unchanged' || c.moved; });
       var status = (ownChanged || childrenChanged) ? 'modified' : 'unchanged';
       return {
-        id: id, status: status, ownChanged: ownChanged, moved: false,
+        id: id, status: status, ownChanged: ownChanged, ignoredOnlyChanged: ignoredOnlyChanged, moved: false,
         nodeType: 'element', tag: oldNode.tag, newTag: newNode.tag, namespaceURI: oldNode.namespaceURI,
         oldIndexInParent: null, newIndexInParent: null,
         attrs: attrs, textDiff: null, oldText: null, newText: null, children: children,

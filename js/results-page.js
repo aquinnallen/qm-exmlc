@@ -97,7 +97,17 @@
   function getNavTargets(category) {
     var cfg = NAV_CATEGORIES[category];
     var container = getActiveContainer(cfg.side);
-    return Array.prototype.slice.call(container.querySelectorAll(cfg.selector));
+    var selector = cfg.selector;
+    // Nodes whose only difference is in an ignored attribute (e.g. uuid)
+    // join the Modified category only while their highlighting is turned
+    // on -- otherwise there'd be nothing visibly different to jump to.
+    if (category === 'modified' && document.body.classList.contains('show-ignored-highlight')) {
+      selector += ', .nav-target-modified-ignored';
+    }
+    // querySelectorAll with a selector list still returns document-order,
+    // de-duplicated results, so a node matching both parts (e.g. a real
+    // modification that ALSO has an ignored-attr diff) isn't counted twice.
+    return Array.prototype.slice.call(container.querySelectorAll(selector));
   }
 
   function navRowFor(category) {
@@ -136,6 +146,13 @@
     el.classList.remove('nav-flash');
     void el.offsetWidth; // force reflow so a repeat flash on the same element restarts the animation
     el.classList.add('nav-flash');
+    // Self-cleaning: without this, a previously-flashed element keeps the
+    // class forever (the CSS animation just stops looking active), so
+    // .nav-flash can end up matching more than one element at once.
+    el.addEventListener('animationend', function handler() {
+      el.classList.remove('nav-flash');
+      el.removeEventListener('animationend', handler);
+    });
   }
 
   function navigate(category, dir) {
@@ -179,6 +196,7 @@
     document.body.classList.toggle('show-ignored-highlight', show);
     showIgnoredCheckbox.checked = show;
     ns.Storage.saveShowIgnoredHighlight(show);
+    updateNavCount('modified');
   }
   showIgnoredCheckbox.addEventListener('change', function () { applyShowIgnoredHighlight(showIgnoredCheckbox.checked); });
   applyShowIgnoredHighlight(ns.Storage.loadShowIgnoredHighlight());

@@ -121,9 +121,12 @@
         var lMoved = buildTagLine(node, 'new', depth, leafInfo, ' ', 'diff-moved');
         C.appendMovedBadge(lMoved, node);
         lMoved.classList.add('nav-target-moved');
+        if (flags.isIgnoredOnlyModified) lMoved.classList.add('nav-target-modified-ignored');
         rows.push(lMoved);
       } else {
-        rows.push(buildTagLine(node, 'new', depth, leafInfo, ' ', ''));
+        var lPlain = buildTagLine(node, 'new', depth, leafInfo, ' ', '');
+        if (flags.isIgnoredOnlyModified) lPlain.classList.add('nav-target-modified-ignored');
+        rows.push(lPlain);
       }
       return rows;
     }
@@ -139,9 +142,12 @@
       var lOpenMoved = buildTagLine(node, 'new', depth, leafInfo, ' ', 'diff-moved');
       C.appendMovedBadge(lOpenMoved, node);
       lOpenMoved.classList.add('nav-target-moved');
+      if (flags.isIgnoredOnlyModified) lOpenMoved.classList.add('nav-target-modified-ignored');
       rows.push(lOpenMoved);
     } else {
-      rows.push(buildTagLine(node, 'new', depth, leafInfo, ' ', ''));
+      var lOpenPlain = buildTagLine(node, 'new', depth, leafInfo, ' ', '');
+      if (flags.isIgnoredOnlyModified) lOpenPlain.classList.add('nav-target-modified-ignored');
+      rows.push(lOpenPlain);
     }
 
     node.children.forEach(function (c) { rows.push.apply(rows, renderNodeRows(c, depth + 1, flags.childAncestorStatus)); });

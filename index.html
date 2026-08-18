@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>qmexmlc — XML Structural Diff</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="app-header">
+  <h1>XML Structural Diff</h1>
+  <p class="tagline">Compares XML by data content, not source order — reordering a group of sibling elements never shows up as noise.</p>
+</header>
+
+<main class="input-page">
+  <div id="notice-banner" class="banner banner-notice" hidden></div>
+  <div id="error-banner" class="banner banner-error" hidden></div>
+
+  <div class="input-columns">
+    <section class="input-panel" aria-label="Old document">
+      <h2>Old</h2>
+      <div id="old-dropzone" class="dropzone">
+        <label class="file-picker-label">
+          <input type="file" id="old-file" accept=".xml,text/xml,application/xml" hidden>
+          Choose file…
+        </label>
+        <span id="old-filename" class="filename"></span>
+        <span class="dropzone-hint">or drop an .xml file here</span>
+      </div>
+      <textarea id="old-input" class="xml-input" placeholder="…or paste the OLD XML here" spellcheck="false"></textarea>
+    </section>
+
+    <section class="input-panel" aria-label="New document">
+      <h2>New</h2>
+      <div id="new-dropzone" class="dropzone">
+        <label class="file-picker-label">
+          <input type="file" id="new-file" accept=".xml,text/xml,application/xml" hidden>
+          Choose file…
+        </label>
+        <span id="new-filename" class="filename"></span>
+        <span class="dropzone-hint">or drop an .xml file here</span>
+      </div>
+      <textarea id="new-input" class="xml-input" placeholder="…or paste the NEW XML here" spellcheck="false"></textarea>
+    </section>
+  </div>
+
+  <div class="options-bar">
+    <label for="ignore-attrs-input" class="options-label">Ignore attributes:</label>
+    <input type="text" id="ignore-attrs-input" class="ignore-attrs-input" placeholder="e.g. uuid, name, timestamp">
+    <span class="options-hint">comma-separated attribute names -- excluded from node matching and never highlighted, but still shown</span>
+  </div>
+
+  <div class="compare-bar">
+    <button id="compare-btn" class="btn btn-primary">Compare</button>
+  </div>
+</main>
+
+<script src="js/xml-parser.js"></script>
+<script src="js/hash.js"></script>
+<script src="js/text-diff.js"></script>
+<script src="js/diff-engine.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/input-page.js"></script>
+</body>
+</html>

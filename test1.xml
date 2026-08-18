@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config urldb="paloaltonetworks" version="10.1.0">
+  <mgt-config>
+    <users>
+      <entry name="admin">
+        <phash>$1$abcdefg$O123456789abcdefg.</phash>
+        <permissions>
+          <role-based><superuser>yes</superuser></role-based>
+        </permissions>
+      </entry>
+    </users>
+    <system>
+      <hostname>PA-Firewall-01</hostname>
+      <ip-address>192.168.1.1</ip-address>
+      <netmask>255.255.255.0</netmask>
+      <default-gateway>192.168.1.254</default-gateway>
+      <dns-setting>
+        <servers>
+          <primary>8.8.8.8</primary>
+          <secondary>4.2.2.2</secondary>
+        </servers>
+      </dns-setting>
+    </system>
+  </mgt-config>
+
+  <devices>
+    <entry name="localhost.localdomain">
+      <network>
+        <interface>
+          <ethernet>
+            <entry name="ethernet1/1">
+              <layer3><ipv4><ip><entry name="203.0.113.2/24"/></ip></ipv4></layer3>
+            </entry>
+            <entry name="ethernet1/2">
+              <layer3><ipv4><ip><entry name="10.0.1.1/24"/></ip></ipv4></layer3>
+            </entry>
+            <entry name="ethernet1/3">
+              <layer3><ipv4><ip><entry name="172.16.1.1/24"/></ip></ipv4></layer3>
+            </entry>
+          </ethernet>
+        </interface>
+        <zone>
+          <entry name="Untrust">
+            <network><layer3><member>ethernet1/1</member></layer3></network>
+          </entry>
+          <entry name="Trust">
+            <network><layer3><member>ethernet1/2</member></layer3></network>
+          </entry>
+          <entry name="DMZ">
+            <network><layer3><member>ethernet1/3</member></layer3></network>
+          </entry>
+          <entry name="VPN">
+            <network><layer3/></network>
+          </entry>
+        </zone>
+        <virtual-router>
+          <entry name="default">
+            <interface>
+              <member>ethernet1/1</member>
+              <member>ethernet1/2</member>
+              <member>ethernet1/3</member>
+            </interface>
+            <routing-table>
+              <ip>
+                <static-route>
+                  <entry name="Default-Route">
+                    <nexthop><ip-address>203.0.113.1</ip-address></nexthop>
+                    <destination>0.0.0.0/0</destination>
+                    <interface>ethernet1/1</interface>
+                  </entry>
+                </static-route>
+              </ip>
+            </routing-table>
+          </entry>
+        </virtual-router>
+      </network>
+
+      <vsys>
+        <entry name="vsys1">
+          <!-- Address Objects and Groups -->
+          <address>
+            <entry name="Internal-Web-Server">
+              <ip-netmask>172.16.1.50</ip-netmask>
+            </entry>
+            <entry name="Corporate-LAN">
+              <ip-netmask>10.0.1.0/24</ip-netmask>
+            </entry>
+            <entry name="Remote-Office-Subnet">
+              <ip-netmask>192.168.50.0/24</ip-netmask>
+            </entry>
+          </address>
+          <address-group>
+            <entry name="Internal-Networks">
+              <static>
+                <member>Corporate-LAN</member>
+                <member>Remote-Office-Subnet</member>
+              </static>
+            </entry>
+          </address-group>
+
+          <!-- Custom Services -->
+          <service>
+            <entry name="Custom-App-Port">
+              <protocol>
+                <tcp>
+                  <port>8080</port>
+                </tcp>
+              </protocol>
+            </entry>
+          </service>
+
+          <!-- Policies and Rules -->
+          <rulebase>
+            <security>
+              <rules>
+                <entry name="Allow-Internal-Outbound">
+                  <to><member>Untrust</member></to>
+                  <from><member>Trust</member></from>
+                  <source><member>Corporate-LAN</member></source>
+                  <destination><member>any</member></destination>
+                  <service><member>application-default</member></service>
+                  <action>allow</action>
+                  <application>
+                    <member>web-browsing</member>
+                    <member>ssl</member>
+                  </application>
+                </entry>
+                <entry name="Allow-VPN-to-Internal">
+                  <to><member>Trust</member></to>
+                  <from><member>VPN</member></from>
+                  <source><member>Remote-Office-Subnet</member></source>
+                  <destination><member>Corporate-LAN</member></destination>
+                  <service><member>application-default</member></service>
+                  <action>allow</action>
+                  <application>
+                    <member>ssh</member>
+                    <member>ms-rdp</member>
+                  </application>
+                </entry>
+                <entry name="Inbound-HTTP-DMZ">
+                  <to><member>DMZ</member></to>
+                  <from><member>Untrust</member></from>
+                  <source><member>any</member></source>
+                  <destination><member>Internal-Web-Server</member></destination>
+                  <service><member>service-http</member></service>
+                  <action>allow</action>
+                  <application><member>web-browsing</member></application>
+                </entry>
+                <entry name="Block-Malicious-Apps">
+                  <to><member>Untrust</member></to>
+                  <from><member>Trust</member></from>
+                  <source><member>any</member></source>
+                  <destination><member>any</member></destination>
+                  <service><member>any</member></service>
+                  <action>deny</action>
+                  <application>
+                    <member>bittorrent</member>
+                    <member>tor-encapsulated</member>
+                  </application>
+                </entry>
+              </rules>
+            </security>
+            
+            <nat>
+              <rules>
+                <entry name="Outbound-NAT">
+                  <to><member>Untrust</member></to>
+                  <from><member>Trust</member><member>DMZ</member></from>
+                  <source><member>any</member></source>
+                  <destination><member>any</member></destination>
+                  <service>any</service>
+                  <source-translation>
+                    <dynamic-ip-and-port>
+                      <interface-address><interface>ethernet1/1</interface></interface-address>
+                    </dynamic-ip-and-port>
+                  </source-translation>
+                </entry>
+                <entry name="Inbound-Web-NAT">
+                  <to><member>Untrust</member></to>
+                  <from><member>Untrust</member></from>
+                  <source><member>any</member></source>
+                  <destination><member>203.0.113.2</member></destination>
+                  <service>service-http</service>
+                  <destination-translation>
+                    <translated-address>172.16.1.50</translated-address>
+                  </destination-translation>
+                </entry>
+              </rules>
+            </nat>
+          </rulebase>
+        </entry>
+      </vsys>
+    </entry>
+  </devices>
+</config>
+

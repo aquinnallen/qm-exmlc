@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>qmexmlc — Diff Result</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="app-header results-header">
+  <div class="results-meta">
+    <span id="old-filename-header" class="file-badge file-badge-old"></span>
+    <span class="vs">vs</span>
+    <span id="new-filename-header" class="file-badge file-badge-new"></span>
+  </div>
+  <div id="summary-line" class="summary-line"></div>
+  <div id="ignored-attrs-line" class="ignored-attrs-line" hidden></div>
+  <div id="root-mismatch-banner" class="banner banner-error" hidden></div>
+</header>
+
+<div class="results-body">
+  <main class="results-page">
+    <div id="view-sidebyside" class="view-sidebyside">
+      <div class="sidebyside-columns">
+        <div id="view-sidebyside-old" class="sidebyside-col sidebyside-col-old"></div>
+        <div id="view-sidebyside-new" class="sidebyside-col sidebyside-col-new"></div>
+      </div>
+    </div>
+    <div id="view-unified" class="view-unified" hidden></div>
+  </main>
+
+  <aside class="tool-pane">
+    <a href="index.html" class="back-link">← New comparison</a>
+
+    <div class="view-toggle" role="tablist">
+      <button id="tab-sidebyside" class="tab-btn active" role="tab">Side by Side</button>
+      <button id="tab-unified" class="tab-btn" role="tab">Unified</button>
+    </div>
+
+    <label class="show-moved-toggle">
+      <input type="checkbox" id="show-moved-checkbox" checked>
+      Show moved
+    </label>
+
+    <label class="show-moved-toggle" id="show-ignored-toggle-wrap" hidden>
+      <input type="checkbox" id="show-ignored-checkbox">
+      Highlight ignored attrs
+    </label>
+
+    <hr>
+
+    <div class="nav-tool">
+      <div class="nav-tool-title">Jump to change</div>
+
+      <div class="nav-row" data-category="added">
+        <span class="nav-swatch diff-added"></span>
+        <span class="nav-label">Additions</span>
+        <div class="nav-controls">
+          <button class="nav-btn nav-prev" type="button" aria-label="Previous addition">‹</button>
+          <span class="nav-count">0 / 0</span>
+          <button class="nav-btn nav-next" type="button" aria-label="Next addition">›</button>
+        </div>
+      </div>
+
+      <div class="nav-row" data-category="removed">
+        <span class="nav-swatch diff-removed"></span>
+        <span class="nav-label">Deletions</span>
+        <div class="nav-controls">
+          <button class="nav-btn nav-prev" type="button" aria-label="Previous deletion">‹</button>
+          <span class="nav-count">0 / 0</span>
+          <button class="nav-btn nav-next" type="button" aria-label="Next deletion">›</button>
+        </div>
+      </div>
+
+      <div class="nav-row" data-category="modified">
+        <span class="nav-swatch diff-modified"></span>
+        <span class="nav-label">Modified</span>
+        <div class="nav-controls">
+          <button class="nav-btn nav-prev" type="button" aria-label="Previous modification">‹</button>
+          <span class="nav-count">0 / 0</span>
+          <button class="nav-btn nav-next" type="button" aria-label="Next modification">›</button>
+        </div>
+      </div>
+
+      <div class="nav-row" data-category="moved">
+        <span class="nav-swatch diff-moved"></span>
+        <span class="nav-label">Moves</span>
+        <div class="nav-controls">
+          <button class="nav-btn nav-prev" type="button" aria-label="Previous move">‹</button>
+          <span class="nav-count">0 / 0</span>
+          <button class="nav-btn nav-next" type="button" aria-label="Next move">›</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<div class="legend">
+  <span class="legend-item"><span class="legend-swatch diff-added"></span>added</span>
+  <span class="legend-item"><span class="legend-swatch diff-removed"></span>removed</span>
+  <span class="legend-item"><span class="legend-swatch diff-modified"></span>modified</span>
+  <span class="legend-item"><span class="legend-swatch diff-moved"></span>moved (content unchanged, position changed)</span>
+</div>
+
+<script src="js/render-common.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/render-sidebyside.js"></script>
+<script src="js/render-unified.js"></script>
+<script src="js/results-page.js"></script>
+</body>
+</html>

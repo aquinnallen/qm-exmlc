@@ -17,6 +17,16 @@
 
   var state = { oldFileName: null, newFileName: null };
 
+  // Free up whatever the last comparison(s) were holding in sessionStorage
+  // as soon as we're back here -- large XML diffs add up fast against the
+  // ~5-10MB per-origin quota, and there's never a reason to keep an old
+  // comparison once you're starting a new one. `pageshow` (rather than
+  // just running this at load) also covers browsers restoring this page
+  // from bfcache on a back/forward navigation, where page scripts don't
+  // necessarily re-run.
+  ns.Storage.clearAllComparisons();
+  window.addEventListener('pageshow', function () { ns.Storage.clearAllComparisons(); });
+
   var IGNORE_ATTRS_STORAGE_KEY = 'qmexmlc:ignoreAttrs';
   (function restoreIgnoreAttrs() {
     try {

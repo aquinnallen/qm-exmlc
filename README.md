@@ -35,7 +35,13 @@ client-side.
    highlighting back on live (no re-comparison) if you want to see them
    after all. This field is remembered across visits.
 3. Click **Compare**. If either document fails to parse, an error appears
-   inline and nothing navigates.
+   inline and nothing navigates. Comparisons are handed to the results page
+   via `sessionStorage`, which has a small per-origin quota (a few MB) --
+   landing back on this page (including via "New comparison") clears out
+   whatever the last comparison(s) left behind, so repeated large diffs in
+   one tab don't add up and exhaust it. If storage is somehow still full
+   when you compare, saving retries once after clearing automatically
+   before giving up.
 4. You're taken to a results page with two interchangeable views — **Side
    by Side** (old/new columns, each independently line-numbered and each
    showing its OWN document's true original structure and order — a

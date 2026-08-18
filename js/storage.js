@@ -12,12 +12,34 @@
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
   }
 
+  // Removes every stored comparison (but not view/toggle preferences) --
+  // large XML diffs add up fast against sessionStorage's ~5-10MB quota, and
+  // nothing ever cleared prior comparisons out on its own.
+  function clearAllComparisons() {
+    var keys = [];
+    for (var i = 0; i < root.sessionStorage.length; i++) {
+      var k = root.sessionStorage.key(i);
+      if (k && k.indexOf(PREFIX) === 0) keys.push(k);
+    }
+    keys.forEach(function (k) { root.sessionStorage.removeItem(k); });
+  }
+
   function saveComparison(diffResult) {
     var id = generateId();
+    var json = JSON.stringify(diffResult);
     try {
-      root.sessionStorage.setItem(PREFIX + id, JSON.stringify(diffResult));
+      root.sessionStorage.setItem(PREFIX + id, json);
     } catch (e) {
-      return { id: null, error: 'Could not store the comparison -- it may be too large for the browser to hold in this session (' + e.message + ').' };
+      // Most likely QuotaExceededError from earlier comparisons still
+      // sitting in this tab's session storage. A new comparison always
+      // supersedes whatever was there, so clear them and retry once
+      // before actually giving up.
+      clearAllComparisons();
+      try {
+        root.sessionStorage.setItem(PREFIX + id, json);
+      } catch (e2) {
+        return { id: null, error: 'Could not store the comparison -- it may be too large for the browser to hold in this session (' + e2.message + ').' };
+      }
     }
     return { id: id, error: null };
   }
@@ -60,6 +82,7 @@
   ns.Storage = {
     saveComparison: saveComparison,
     loadComparison: loadComparison,
+    clearAllComparisons: clearAllComparisons,
     saveLastView: saveLastView,
     loadLastView: loadLastView,
     saveShowMoved: saveShowMoved,

@@ -37,10 +37,14 @@ client-side.
 3. Click **Compare**. If either document fails to parse, an error appears
    inline and nothing navigates.
 4. You're taken to a results page with two interchangeable views — **Side
-   by Side** (old/new columns, each independently line-numbered and kept
-   height-aligned even through additions/deletions, via a blank
-   placeholder row on the opposite column) and **Unified** (git-style
-   `+`/`-` with a dual old#/new# gutter) — toggled from the tool pane on
+   by Side** (old/new columns, each independently line-numbered and each
+   showing its OWN document's true original structure and order — a
+   reordered node renders at its real position in each file, never a
+   position "normalized" to match the other side; only genuine adds/
+   removes get a blank placeholder row on the opposite column, sized to
+   match however many lines that content actually spans) and **Unified**
+   (git-style `+`/`-` with a dual old#/new# gutter, a single interleaved
+   sequence by nature) — toggled from the tool pane on
    the right, which stays pinned in view as you scroll a long diff. That
    pane also has a **Show moved** checkbox (hides "moved" badges/styling
    entirely — reordered-but-identical nodes then look exactly like

@@ -153,11 +153,9 @@
     };
   }
 
-  // Assigns a visible running line number to every non-blank row (blank
-  // placeholder rows in the side-by-side view get no number). Done as a
-  // post-process over the finished row list rather than threaded through
-  // the recursive builders, since "is this row blank" is already
-  // observable from the row itself.
+  // Assigns a visible running line number to every real row (blank filler
+  // rows -- standing in for content that only exists on the other side --
+  // get no number, since they aren't a line in this file).
   function addLineNumbers(rows) {
     var n = 0;
     rows.forEach(function (r) {

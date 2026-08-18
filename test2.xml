@@ -10,8 +10,7 @@
       </entry>
     </users>
     <system>
-      <!-- CHANGE 1: Modified text value -->
-      <hostname>PA-Firewall-PROD-01</hostname>
+      <hostname>PA-Firewall-01</hostname>
       <ip-address>192.168.1.1</ip-address>
       <netmask>255.255.255.0</netmask>
       <default-gateway>192.168.1.254</default-gateway>
@@ -88,10 +87,6 @@
             <entry name="Remote-Office-Subnet">
               <ip-netmask>192.168.50.0/24</ip-netmask>
             </entry>
-            <!-- CHANGE 2: Added a completely new address object node -->
-            <entry name="Guest-Wi-Fi">
-              <ip-netmask>192.168.20.0/24</ip-netmask>
-            </entry>
           </address>
           <address-group>
             <entry name="Internal-Networks">
@@ -101,7 +96,6 @@
               </static>
             </entry>
           </address-group>
-
           <service>
             <entry name="Custom-App-Port">
               <protocol>
@@ -111,7 +105,6 @@
               </protocol>
             </entry>
           </service>
-
           <rulebase>
             <security>
               <rules>
@@ -121,12 +114,10 @@
                   <source><member>Corporate-LAN</member></source>
                   <destination><member>any</member></destination>
                   <service><member>application-default</member></service>
-                  <!-- CHANGE 3A: Modified value inside a nested rule component -->
-                  <action>deny</action>
+                  <action>allow</action>
                   <application>
-                    <!-- CHANGE 3B: Removed 'web-browsing' node, added 'ping' node -->
+                    <member>web-browsing</member>
                     <member>ssl</member>
-                    <member>ping</member>
                   </application>
                 </entry>
                 <entry name="Allow-VPN-to-Internal">
@@ -150,13 +141,24 @@
                   <action>allow</action>
                   <application><member>web-browsing</member></application>
                 </entry>
-                <!-- CHANGE 4: The entire entry "Block-Malicious-Apps" has been deleted -->
+                <entry name="Block-Malicious-Apps">
+                  <to><member>Untrust</member></to>
+                  <from><member>Trust</member></from>
+                  <source><member>any</member></source>
+                  <destination><member>any</member></destination>
+                  <service><member>any</member></service>
+                  <action>deny</action>
+                  <application>
+                    <member>bittorrent</member>
+                    <member>tor-encapsulated</member>
+                  </application>
+                </entry>
               </rules>
             </security>
             
             <nat>
               <rules>
-                <entry name="Outbound-NAT">
+                <entry name="Outbound-NAT" uuid="90i8uknml3">
                   <to><member>Untrust</member></to>
                   <from><member>Trust</member><member>DMZ</member></from>
                   <source><member>any</member></source>
@@ -168,7 +170,7 @@
                     </dynamic-ip-and-port>
                   </source-translation>
                 </entry>
-                <entry name="Inbound-Web-NAT">
+                <entry name="Inbound-Web-NAT" uuid="9807281111">
                   <to><member>Untrust</member></to>
                   <from><member>Untrust</member></from>
                   <source><member>any</member></source>

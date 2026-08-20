@@ -50,6 +50,12 @@
     <span class="options-hint">comma-separated attribute names -- excluded from node matching and never highlighted, but still shown</span>
   </div>
 
+  <div class="options-bar">
+    <label for="case-insensitive-elements-input" class="options-label">Case-insensitive elements:</label>
+    <input type="text" id="case-insensitive-elements-input" class="ignore-attrs-input" placeholder="e.g. ip-netmask, destination">
+    <span class="options-hint">comma-separated element names -- their own direct text content is compared ignoring case (subelements are unaffected); for ignoring case in Palo Alto firewalls' IP/IPv6 fields use <code>ip-netmask, destination, ipv6-address</code></span>
+  </div>
+
   <div class="compare-bar">
     <button id="compare-btn" class="btn btn-primary">Compare</button>
   </div>

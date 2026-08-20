@@ -68,6 +68,11 @@
                     <destination>0.0.0.0/0</destination>
                     <interface>ethernet1/1</interface>
                   </entry>
+                  <entry name="IPv6-Default-Route">
+                    <nexthop><ip-address>2001:DB8::1</ip-address></nexthop>
+                    <destination>2001:DB8::/32</destination>
+                    <interface>ethernet1/1</interface>
+                  </entry>
                 </static-route>
               </ip>
             </routing-table>
@@ -89,6 +94,12 @@
             </entry>
             <entry name="Guest-Wi-Fi">
               <ip-netmask>192.168.20.0/24</ip-netmask>
+            </entry>
+            <entry name="IPv6-DMZ-Host">
+              <ipv6-address>2001:DB8::A5</ipv6-address>
+            </entry>
+            <entry name="Migrated-IPv4-Mapped-Host">
+              <ip-netmask>::FFFF:198.51.100.20</ip-netmask>
             </entry>
           </address>
           <address-group>

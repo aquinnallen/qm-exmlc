@@ -7,6 +7,20 @@
   var ID_ATTR_CANDIDATES = ['id', 'key', 'name', 'code', 'ref'];
   var MIN_SIMILARITY_THRESHOLD = 0.3;
 
+  // Elements whose own direct text content is compared case-insensitively
+  // (e.g. PAN-OS often re-cases IP/network literals without meaning to
+  // change them). Text inside a SUBELEMENT of one of these is unaffected --
+  // this only governs the leaf text/cdata child(ren) of the element itself,
+  // recomputed fresh at each diffChildren call from that call's own parent
+  // tag, so it never leaks past one level. User-supplied (element local
+  // names, lowercased) from the input page's "Case-insensitive elements"
+  // box -- empty by default, set once at the top of diffDocuments, same
+  // pattern as ignoredAttrs below.
+  var caseInsensitiveTags = new Set();
+  function isCaseInsensitiveTextParent(localName) {
+    return !!localName && caseInsensitiveTags.has(localName.toLowerCase());
+  }
+
   var idCounter = 0;
   function nextId() { return 'n' + (idCounter++); }
 
@@ -320,7 +334,11 @@
   }
 
   // ---- recursive diff of a matched (old, new) pair ----
-  function diffNode(oldNode, newNode) {
+  // caseInsensitiveText: true when this pair is a direct text/cdata child of
+  // an element in CASE_INSENSITIVE_TEXT_TAGS (set by the enclosing
+  // diffChildren call); irrelevant for the element branch below, since that
+  // branch's own children get their own freshly-computed flag.
+  function diffNode(oldNode, newNode, caseInsensitiveText) {
     var id = nextId();
 
     if (oldNode.type === 'element') {
@@ -345,7 +363,11 @@
 
     // leaf types: text / cdata / comment / pi
     var oldText = oldNode.textContent, newText = newNode.textContent;
-    var same = oldText === newText && (oldNode.type !== 'pi' || oldNode.target === newNode.target);
+    var isTextLike = oldNode.type === 'text' || oldNode.type === 'cdata';
+    var textEqual = (isTextLike && caseInsensitiveText)
+      ? (oldText || '').toLowerCase() === (newText || '').toLowerCase()
+      : oldText === newText;
+    var same = textEqual && (oldNode.type !== 'pi' || oldNode.target === newNode.target);
     var textDiff = same ? null : TextDiff.diffWords(oldText, newText);
     return {
       id: id, status: same ? 'unchanged' : 'modified', ownChanged: !same, moved: false,
@@ -380,10 +402,10 @@
     };
   }
 
-  function pairToDiffNode(entry) {
+  function pairToDiffNode(entry, caseInsensitiveText) {
     if (entry.kind === 'added') return buildAddedRemovedNode(entry.pair.new.node, 'added', entry.pair.new.origIndex);
     if (entry.kind === 'removed') return buildAddedRemovedNode(entry.pair.old.node, 'removed', entry.pair.old.origIndex);
-    var dn = diffNode(entry.pair.old.node, entry.pair.new.node);
+    var dn = diffNode(entry.pair.old.node, entry.pair.new.node, caseInsensitiveText);
     dn.moved = entry.moved;
     dn.oldIndexInParent = entry.pair.old.origIndex;
     dn.newIndexInParent = entry.pair.new.origIndex;
@@ -393,6 +415,7 @@
   function diffChildren(oldParentNode, newParentNode) {
     var oldKids = oldParentNode ? oldParentNode.children : [];
     var newKids = newParentNode ? newParentNode.children : [];
+    var caseInsensitiveText = isCaseInsensitiveTextParent(oldParentNode && oldParentNode.localName);
 
     var oldGroups = groupByBucket(oldKids);
     var newGroups = groupByBucket(newKids);
@@ -403,12 +426,13 @@
       allPairs = allPairs.concat(matchBucket(oldGroups.get(key) || [], newGroups.get(key) || []));
     });
 
-    return buildFinalOrder(allPairs).map(pairToDiffNode);
+    return buildFinalOrder(allPairs).map(function (entry) { return pairToDiffNode(entry, caseInsensitiveText); });
   }
 
-  function diffDocuments(oldRoot, newRoot, meta, ignoredAttrsSet) {
+  function diffDocuments(oldRoot, newRoot, meta, ignoredAttrsSet, caseInsensitiveTagsSet) {
     idCounter = 0;
     ignoredAttrs = ignoredAttrsSet || new Set();
+    caseInsensitiveTags = caseInsensitiveTagsSet || new Set();
     Hash.setIgnoredAttrs(ignoredAttrs);
     var rootTagMismatch = oldRoot.tag !== newRoot.tag || oldRoot.namespaceURI !== newRoot.namespaceURI;
     var tree = diffNode(oldRoot, newRoot);

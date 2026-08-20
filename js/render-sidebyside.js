@@ -155,8 +155,8 @@
     newContainer.innerHTML = '';
     var oldRows = renderSideRows(rootDiffNode, 0, null, 'old');
     var newRows = renderSideRows(rootDiffNode, 0, null, 'new');
-    C.addLineNumbers(oldRows);
-    C.addLineNumbers(newRows);
+    C.addLineNumbers(oldRows, 'old');
+    C.addLineNumbers(newRows, 'new');
     var oldPane = document.createElement('div');
     oldPane.className = 'code-pane';
     var newPane = document.createElement('div');

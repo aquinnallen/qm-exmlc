@@ -14,6 +14,7 @@
   var errorBanner = document.getElementById('error-banner');
   var noticeBanner = document.getElementById('notice-banner');
   var ignoreAttrsInput = document.getElementById('ignore-attrs-input');
+  var caseInsensitiveElementsInput = document.getElementById('case-insensitive-elements-input');
 
   var state = { oldFileName: null, newFileName: null };
 
@@ -40,6 +41,24 @@
 
   function parseIgnoreAttrs() {
     var names = ignoreAttrsInput.value.split(',')
+      .map(function (s) { return s.trim().toLowerCase(); })
+      .filter(function (s) { return s.length > 0; });
+    return { set: new Set(names), list: names };
+  }
+
+  var CASE_INSENSITIVE_ELEMENTS_STORAGE_KEY = 'qmexmlc:caseInsensitiveElements';
+  (function restoreCaseInsensitiveElements() {
+    try {
+      var saved = window.localStorage.getItem(CASE_INSENSITIVE_ELEMENTS_STORAGE_KEY);
+      if (saved) caseInsensitiveElementsInput.value = saved;
+    } catch (e) { /* localStorage unavailable -- non-fatal */ }
+  })();
+  caseInsensitiveElementsInput.addEventListener('input', function () {
+    try { window.localStorage.setItem(CASE_INSENSITIVE_ELEMENTS_STORAGE_KEY, caseInsensitiveElementsInput.value); } catch (e) { /* non-fatal */ }
+  });
+
+  function parseCaseInsensitiveElements() {
+    var names = caseInsensitiveElementsInput.value.split(',')
       .map(function (s) { return s.trim().toLowerCase(); })
       .filter(function (s) { return s.length > 0; });
     return { set: new Set(names), list: names };
@@ -126,6 +145,7 @@
     }
 
     var ignoreAttrs = parseIgnoreAttrs();
+    var caseInsensitiveElements = parseCaseInsensitiveElements();
 
     var oldParsed = ns.XmlParser.canonicalizeDocument(oldXml);
     if (oldParsed.error) {
@@ -144,7 +164,8 @@
         oldFileName: state.oldFileName,
         newFileName: state.newFileName,
         ignoredAttrs: ignoreAttrs.list,
-      }, ignoreAttrs.set);
+        caseInsensitiveElements: caseInsensitiveElements.list,
+      }, ignoreAttrs.set, caseInsensitiveElements.set);
     } catch (e) {
       showError('Something went wrong while comparing these documents: ' + e.message);
       return;

@@ -15,6 +15,7 @@
   </div>
   <div id="summary-line" class="summary-line"></div>
   <div id="ignored-attrs-line" class="ignored-attrs-line" hidden></div>
+  <div id="case-insensitive-elements-line" class="ignored-attrs-line" hidden></div>
   <div id="root-mismatch-banner" class="banner banner-error" hidden></div>
 </header>
 
@@ -51,6 +52,18 @@
 
     <div class="nav-tool">
       <div class="nav-tool-title">Jump to change</div>
+
+      <div class="nav-row" data-category="differences">
+        <span class="nav-swatch diff-all"></span>
+        <span class="nav-label">All differences</span>
+        <div class="nav-controls">
+          <button class="nav-btn nav-prev" type="button" aria-label="Previous difference">‹</button>
+          <span class="nav-count">0 / 0</span>
+          <button class="nav-btn nav-next" type="button" aria-label="Next difference">›</button>
+        </div>
+      </div>
+
+      <hr>
 
       <div class="nav-row" data-category="added">
         <span class="nav-swatch diff-added"></span>
@@ -92,7 +105,28 @@
         </div>
       </div>
     </div>
+
+    <hr>
+
+    <div class="comments-tool">
+      <div class="nav-tool-title">Comments (<span id="comments-count">0</span>)</div>
+      <p class="comments-hint">Click a line number to add a review comment.</p>
+      <div id="comments-list" class="comments-list"></div>
+      <button id="export-comments-btn" class="btn btn-primary comments-export-btn" type="button" disabled>Export comments</button>
+    </div>
   </aside>
+</div>
+
+<div id="comment-popover" class="comment-popover" hidden>
+  <div id="comment-popover-title" class="comment-popover-title"></div>
+  <textarea id="comment-popover-text" class="comment-popover-text" rows="4" placeholder="Add a review comment for this line…"></textarea>
+  <div class="comment-popover-actions">
+    <button id="comment-popover-delete" class="btn comment-popover-delete" type="button" hidden>Delete</button>
+    <div class="comment-popover-actions-right">
+      <button id="comment-popover-cancel" class="btn" type="button">Cancel</button>
+      <button id="comment-popover-save" class="btn btn-primary" type="button">Save</button>
+    </div>
+  </div>
 </div>
 
 <div class="legend">

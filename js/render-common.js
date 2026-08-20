@@ -153,15 +153,28 @@
     };
   }
 
+  // Marks a line-number gutter span as a valid comment anchor: side + line
+  // number identify a specific line of a specific file, independent of
+  // which view (side-by-side / unified) is currently showing it -- a
+  // comment added in one view is found by the same (side, line) lookup in
+  // the other.
+  function markCommentAnchor(gutter, side, num) {
+    gutter.classList.add('line-number-clickable');
+    gutter.dataset.side = side;
+    gutter.dataset.line = String(num);
+    gutter.title = 'Add comment';
+  }
+
   // Assigns a visible running line number to every real row (blank filler
   // rows -- standing in for content that only exists on the other side --
   // get no number, since they aren't a line in this file).
-  function addLineNumbers(rows) {
+  function addLineNumbers(rows, side) {
     var n = 0;
     rows.forEach(function (r) {
       var num = null;
       if (!r.classList.contains('diff-blank')) { n++; num = n; }
       var gutter = span(num != null ? String(num) : '', 'line-number');
+      if (num != null) markCommentAnchor(gutter, side, num);
       r.insertBefore(gutter, r.firstChild);
     });
   }
@@ -178,6 +191,8 @@
       if (markerText !== '-') { newN++; newNum = newN; }
       var newGutter = span(newNum != null ? String(newNum) : '', 'line-number line-number-new');
       var oldGutter = span(oldNum != null ? String(oldNum) : '', 'line-number line-number-old');
+      if (newNum != null) markCommentAnchor(newGutter, 'new', newNum);
+      if (oldNum != null) markCommentAnchor(oldGutter, 'old', oldNum);
       r.insertBefore(newGutter, r.firstChild);
       r.insertBefore(oldGutter, r.firstChild);
     });

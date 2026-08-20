@@ -3,6 +3,7 @@
   var ns = root.XmlDiff = root.XmlDiff || {};
 
   var PREFIX = 'qmexmlc:comparison:';
+  var COMMENTS_PREFIX = 'qmexmlc:comments:';
   var LAST_VIEW_KEY = 'qmexmlc:lastView';
   var SHOW_MOVED_KEY = 'qmexmlc:showMoved';
   var SHOW_IGNORED_KEY = 'qmexmlc:showIgnoredHighlight';
@@ -12,14 +13,17 @@
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
   }
 
-  // Removes every stored comparison (but not view/toggle preferences) --
-  // large XML diffs add up fast against sessionStorage's ~5-10MB quota, and
-  // nothing ever cleared prior comparisons out on its own.
+  // Removes every stored comparison AND its review comments (but not
+  // view/toggle preferences) -- large XML diffs add up fast against
+  // sessionStorage's ~5-10MB quota, and nothing ever cleared prior
+  // comparisons out on its own. Comments are keyed by the same comparison
+  // id, so once the comparison they annotate is gone they're just orphaned
+  // garbage -- always clear both together.
   function clearAllComparisons() {
     var keys = [];
     for (var i = 0; i < root.sessionStorage.length; i++) {
       var k = root.sessionStorage.key(i);
-      if (k && k.indexOf(PREFIX) === 0) keys.push(k);
+      if (k && (k.indexOf(PREFIX) === 0 || k.indexOf(COMMENTS_PREFIX) === 0)) keys.push(k);
     }
     keys.forEach(function (k) { root.sessionStorage.removeItem(k); });
   }
@@ -79,6 +83,23 @@
     try { return root.sessionStorage.getItem(SHOW_IGNORED_KEY) === '1'; } catch (e) { return false; }
   }
 
+  // Review comments for a comparison: an array of
+  // { id, side: 'old'|'new', line, text, snippet, createdAt }, stored
+  // separately from the (much larger, read-only) comparison payload so
+  // saving a comment never re-serializes the whole diff tree.
+  function saveComments(id, comments) {
+    if (!id) return;
+    try { root.sessionStorage.setItem(COMMENTS_PREFIX + id, JSON.stringify(comments)); } catch (e) { /* non-fatal */ }
+  }
+
+  function loadComments(id) {
+    if (!id) return [];
+    try {
+      var raw = root.sessionStorage.getItem(COMMENTS_PREFIX + id);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) { return []; }
+  }
+
   ns.Storage = {
     saveComparison: saveComparison,
     loadComparison: loadComparison,
@@ -89,5 +110,7 @@
     loadShowMoved: loadShowMoved,
     saveShowIgnoredHighlight: saveShowIgnoredHighlight,
     loadShowIgnoredHighlight: loadShowIgnoredHighlight,
+    saveComments: saveComments,
+    loadComments: loadComments,
   };
 })(typeof window !== 'undefined' ? window : globalThis);
